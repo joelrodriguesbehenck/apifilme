@@ -26,3 +26,4 @@ C:\Users\Usuário\Apifilme\obj\Debug\net10.0\refint\Apifilme.dll
 C:\Users\Usuário\Apifilme\obj\Debug\net10.0\Apifilme.pdb
 C:\Users\Usuário\Apifilme\obj\Debug\net10.0\Apifilme.genruntimeconfig.cache
 C:\Users\Usuário\Apifilme\obj\Debug\net10.0\ref\Apifilme.dll
+C:\Users\Usuário\Apifilme\obj\Debug\net10.0\Apifilme.sourcelink.json

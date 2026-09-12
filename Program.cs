@@ -8,7 +8,7 @@ var filmes = new List<Filme>
     new Filme(2, "Os Mercenários", "Ação", 2010, 8.7)
 };
 
-// Página inicial
+
 app.MapGet("/", () => "API de Filmes está funcionando!");
 
 // Listar filmes
@@ -17,7 +17,7 @@ app.MapGet("/api/filmes", () =>
     return Results.Ok(filmes);
 });
 
-// Buscar filme por ID
+
 app.MapGet("/api/filmes/{id}", (int id) =>
 {
     var filme = filmes.FirstOrDefault(f => f.Id == id);
@@ -30,7 +30,7 @@ app.MapGet("/api/filmes/{id}", (int id) =>
     return Results.Ok(filme);
 });
 
-// Cadastrar filme
+
 app.MapPost("/api/filmes", (FilmeEntrada entrada) =>
 {
     var novoId = filmes.Count == 0 ? 1 : filmes.Max(f => f.Id) + 1;
@@ -48,7 +48,7 @@ app.MapPost("/api/filmes", (FilmeEntrada entrada) =>
     return Results.Created($"/api/filmes/{novoFilme.Id}", novoFilme);
 });
 
-// Atualizar filme
+
 app.MapPut("/api/filmes/{id}", (int id, FilmeEntrada entrada) =>
 {
     var indice = filmes.FindIndex(f => f.Id == id);
@@ -71,7 +71,7 @@ app.MapPut("/api/filmes/{id}", (int id, FilmeEntrada entrada) =>
     return Results.Ok(filmeAtualizado);
 });
 
-// Excluir filme
+
 app.MapDelete("/api/filmes/{id}", (int id) =>
 {
     var filme = filmes.FirstOrDefault(f => f.Id == id);
@@ -96,7 +96,7 @@ record Filme(
     double Nota
 );
 
-// Dados recebidos no cadastro/edição
+
 record FilmeEntrada(
     string Titulo,
     string Genero,
