@@ -11,7 +11,7 @@ var filmes = new List<Filme>
 
 app.MapGet("/", () => "API de Filmes está funcionando!");
 
-// Listar filmes
+
 app.MapGet("/api/filmes", () =>
 {
     return Results.Ok(filmes);
