@@ -1,0 +1,5 @@
+name: bruno
+variables:
+  - name: baseUrl
+    value: http://localhost:5050
+    description: ""

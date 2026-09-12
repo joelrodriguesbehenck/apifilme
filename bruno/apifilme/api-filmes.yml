@@ -1,0 +1,25 @@
+info:
+  name: api-filmes
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/filmes"
+  body:
+    type: json
+    data: |-
+      {
+        "titulo": "Vingadores",
+        "genero": "Ação",
+        "ano": 2012,
+        "nota": 8.5
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
