@@ -1,106 +1,117 @@
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// Configuração do DbContext com SQLite
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=filmes.db";
+builder.Services.AddDbContext<FilmeContext>(options =>
+    options.UseSqlite(connectionString));
 var app = builder.Build();
-
-var filmes = new List<Filme>
+app.UseExceptionHandler(errorApp => 
 {
-    new Filme(1, "Titanic", "Drama", 1997, 9.2),
-    new Filme(2, "Os Mercenários", "Ação", 2010, 8.7)
-};
-
-
-app.MapGet("/", () => "API de Filmes está funcionando!");
-
-
-app.MapGet("/api/filmes", () =>
+    errorApp.Run(async context =>
+    
 {
-    return Results.Ok(filmes);
+context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+context.Response.ContentType = "application/json";
+await context.Response.WriteAsJsonAsync(new
+{
+    mensagem = "ocorreu um erro de sistema tente novamente mais tarde"
+});
+});
 });
 
 
-app.MapGet("/api/filmes/{id}", (int id) =>
+
+
+
+// Aplica as migrações automaticamente ao iniciar a aplicação
+using (var scope = app.Services.CreateScope())
 {
-    var filme = filmes.FirstOrDefault(f => f.Id == id);
+    var db = scope.ServiceProvider.GetRequiredService<FilmeContext>();
+    db.Database.Migrate();
+}
 
-    if (filme == null)
-    {
-        return Results.NotFound();
-    }
+// Habilita arquivos estáticos da pasta wwwroot
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
-    return Results.Ok(filme);
+// Rotas da API - CRUD com EF Core e SQLite
+
+// 1. Listar todos os filmes (200 OK)
+app.MapGet("/api/filmes", async (FilmeContext db) =>
+{
+    var lista = await db.Filmes.ToListAsync();
+    return Results.Ok(lista);
 });
 
-
-app.MapPost("/api/filmes", (FilmeEntrada entrada) =>
+// 2. Buscar filme por ID (200 OK ou 404 NotFound)
+app.MapGet("/api/filmes/{id:int}", async (int id, FilmeContext db) =>
 {
-    var novoId = filmes.Count == 0 ? 1 : filmes.Max(f => f.Id) + 1;
+    var filme = await db.Filmes.FindAsync(id);
+    return filme is not null ? Results.Ok(filme) : Results.NotFound();
+});
 
+// 3. Cadastrar novo filme (201 Created)
+app.MapPost("/api/filmes", async (FilmeEntrada entrada, FilmeContext db) =>
+{
     var novoFilme = new Filme(
-        novoId,
+        0,
         entrada.Titulo,
         entrada.Genero,
         entrada.Ano,
         entrada.Nota
     );
 
-    filmes.Add(novoFilme);
+    db.Filmes.Add(novoFilme);
+    await db.SaveChangesAsync();
 
     return Results.Created($"/api/filmes/{novoFilme.Id}", novoFilme);
 });
 
-
-app.MapPut("/api/filmes/{id}", (int id, FilmeEntrada entrada) =>
+// 4. Atualizar filme existente (200 OK ou 404 NotFound)
+app.MapPut("/api/filmes/{id:int}", async (int id, FilmeEntrada entrada, FilmeContext db) =>
 {
-    var indice = filmes.FindIndex(f => f.Id == id);
-
-    if (indice == -1)
+    var filme = await db.Filmes.FindAsync(id);
+    if (filme is null)
     {
         return Results.NotFound();
     }
 
-    var filmeAtualizado = new Filme(
-        id,
-        entrada.Titulo,
-        entrada.Genero,
-        entrada.Ano,
-        entrada.Nota
-    );
+    filme.Titulo = entrada.Titulo;
+    filme.Genero = entrada.Genero;
+    filme.Ano = entrada.Ano;
+    filme.Nota = entrada.Nota;
 
-    filmes[indice] = filmeAtualizado;
+    await db.SaveChangesAsync();
 
-    return Results.Ok(filmeAtualizado);
+    return Results.Ok(filme);
 });
 
-
-app.MapDelete("/api/filmes/{id}", (int id) =>
+// 5. Excluir filme (204 NoContent ou 404 NotFound)
+app.MapDelete("/api/filmes/{id:int}", async (int id, FilmeContext db) =>
 {
-    var filme = filmes.FirstOrDefault(f => f.Id == id);
-
-    if (filme == null)
+    var filme = await db.Filmes.FindAsync(id);
+    if (filme is null)
     {
         return Results.NotFound();
     }
 
-    filmes.Remove(filme);
+    db.Filmes.Remove(filme);
+    await db.SaveChangesAsync();
 
     return Results.NoContent();
 });
-
+app.MapGet("/api/teste-erro",()=>
+{
+  
+});
 app.Run();
 
-record Filme(
-    int Id,
+// DTO para entrada de dados
+public record FilmeEntrada(
     string Titulo,
     string Genero,
     int Ano,
     double Nota
 );
-
-
-record FilmeEntrada(
-    string Titulo,
-    string Genero,
-    int Ano,
-    double Nota
-);
-

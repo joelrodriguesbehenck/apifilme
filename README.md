@@ -23,3 +23,24 @@ https://youtu.be/S80i8gaEXNQ
 ﻿# api-filmes
 # projeto--filme
 # api-filme
+
+# ap2 - crud persistente no frontend integrado
+com esse projeto ele e a evolucao da ap1 onde e inplementado no crud completo com a persistencia em um banco de dados sqlite foram ultilizadas entity framework core (ef core) integrado a um frontend web.
+
+## tecnologias ultilizadas
+- c# / .net 10
+- asp.net core minimal apis
+- entity framework core 10
+- sqlite
+- html5 css3 e javaScript
+- bruno / postman para testes de api
+
+# funcionalidades
+- listar filmes 
+- cadastrar filmes
+- buscar filmes por id
+- atualizar filmes
+- excluir filmes
+- armazenar os dados no banco sqlite
+- integrar o  frontend com os apis
+
