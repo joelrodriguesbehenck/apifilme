@@ -1,0 +1,11 @@
+meta {
+  name: 06 - Buscar Filme Inexistente (404)
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/filmes/999
+  body: none
+  auth: none
+}

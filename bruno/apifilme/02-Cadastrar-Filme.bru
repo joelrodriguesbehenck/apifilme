@@ -1,0 +1,20 @@
+meta {
+  name: 02 - Cadastrar Filme
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/filmes
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "titulo": "Interestelar",
+    "genero": "Ficção Científica",
+    "ano": 2014,
+    "nota": 8.6
+  }
+}

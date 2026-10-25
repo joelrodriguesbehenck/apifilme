@@ -1,106 +1,98 @@
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Configuração do DbContext com SQLite
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=filmes.db";
+builder.Services.AddDbContext<FilmeContext>(options =>
+    options.UseSqlite(connectionString));
 
 var app = builder.Build();
 
-var filmes = new List<Filme>
+// Aplica as migrações automaticamente ao iniciar a aplicação
+using (var scope = app.Services.CreateScope())
 {
-    new Filme(1, "Titanic", "Drama", 1997, 9.2),
-    new Filme(2, "Os Mercenários", "Ação", 2010, 8.7)
-};
+    var db = scope.ServiceProvider.GetRequiredService<FilmeContext>();
+    db.Database.Migrate();
+}
 
+// Habilita arquivos estáticos da pasta wwwroot
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
-app.MapGet("/", () => "API de Filmes está funcionando!");
+// Rotas da API - CRUD com EF Core e SQLite
 
-
-app.MapGet("/api/filmes", () =>
+// 1. Listar todos os filmes (200 OK)
+app.MapGet("/api/filmes", async (FilmeContext db) =>
 {
-    return Results.Ok(filmes);
+    var lista = await db.Filmes.ToListAsync();
+    return Results.Ok(lista);
 });
 
-
-app.MapGet("/api/filmes/{id}", (int id) =>
+// 2. Buscar filme por ID (200 OK ou 404 NotFound)
+app.MapGet("/api/filmes/{id:int}", async (int id, FilmeContext db) =>
 {
-    var filme = filmes.FirstOrDefault(f => f.Id == id);
-
-    if (filme == null)
-    {
-        return Results.NotFound();
-    }
-
-    return Results.Ok(filme);
+    var filme = await db.Filmes.FindAsync(id);
+    return filme is not null ? Results.Ok(filme) : Results.NotFound();
 });
 
-
-app.MapPost("/api/filmes", (FilmeEntrada entrada) =>
+// 3. Cadastrar novo filme (201 Created)
+app.MapPost("/api/filmes", async (FilmeEntrada entrada, FilmeContext db) =>
 {
-    var novoId = filmes.Count == 0 ? 1 : filmes.Max(f => f.Id) + 1;
-
     var novoFilme = new Filme(
-        novoId,
+        0,
         entrada.Titulo,
         entrada.Genero,
         entrada.Ano,
         entrada.Nota
     );
 
-    filmes.Add(novoFilme);
+    db.Filmes.Add(novoFilme);
+    await db.SaveChangesAsync();
 
     return Results.Created($"/api/filmes/{novoFilme.Id}", novoFilme);
 });
 
-
-app.MapPut("/api/filmes/{id}", (int id, FilmeEntrada entrada) =>
+// 4. Atualizar filme existente (200 OK ou 404 NotFound)
+app.MapPut("/api/filmes/{id:int}", async (int id, FilmeEntrada entrada, FilmeContext db) =>
 {
-    var indice = filmes.FindIndex(f => f.Id == id);
-
-    if (indice == -1)
+    var filme = await db.Filmes.FindAsync(id);
+    if (filme is null)
     {
         return Results.NotFound();
     }
 
-    var filmeAtualizado = new Filme(
-        id,
-        entrada.Titulo,
-        entrada.Genero,
-        entrada.Ano,
-        entrada.Nota
-    );
+    filme.Titulo = entrada.Titulo;
+    filme.Genero = entrada.Genero;
+    filme.Ano = entrada.Ano;
+    filme.Nota = entrada.Nota;
 
-    filmes[indice] = filmeAtualizado;
+    await db.SaveChangesAsync();
 
-    return Results.Ok(filmeAtualizado);
+    return Results.Ok(filme);
 });
 
-
-app.MapDelete("/api/filmes/{id}", (int id) =>
+// 5. Excluir filme (204 NoContent ou 404 NotFound)
+app.MapDelete("/api/filmes/{id:int}", async (int id, FilmeContext db) =>
 {
-    var filme = filmes.FirstOrDefault(f => f.Id == id);
-
-    if (filme == null)
+    var filme = await db.Filmes.FindAsync(id);
+    if (filme is null)
     {
         return Results.NotFound();
     }
 
-    filmes.Remove(filme);
+    db.Filmes.Remove(filme);
+    await db.SaveChangesAsync();
 
     return Results.NoContent();
 });
 
 app.Run();
 
-record Filme(
-    int Id,
+// DTO para entrada de dados
+public record FilmeEntrada(
     string Titulo,
     string Genero,
     int Ano,
     double Nota
 );
-
-
-record FilmeEntrada(
-    string Titulo,
-    string Genero,
-    int Ano,
-    double Nota
-);
-

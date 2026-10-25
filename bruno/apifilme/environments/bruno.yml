@@ -1,5 +1,5 @@
-name: bruno
+name: Local
 variables:
   - name: baseUrl
-    value: http://localhost:5050
-    description: ""
+    value: http://localhost:5205
+    enabled: true
