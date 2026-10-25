@@ -1,5 +1,5 @@
 # 🎬 API de Filmes — AP2: CRUD Persistente com Frontend Integrado
-
+https://youtu.be/lezZF12CC34
 Este projeto é a evolução da **AP1**, implementando um CRUD completo com persistência em banco de dados **SQLite** utilizando o **Entity Framework Core (EF Core)** e integrado a um **frontend web** servido pela mesma origem da API ASP.NET Core.
 
 ---
