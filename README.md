@@ -4,7 +4,7 @@ API REST desenvolvida em ASP.NET Core para gerenciar cadastro de filmes.
 
 ## Vídeo de demonstração 🎬
 
-https://youtu.be/S80i8gaEXNQ
+https://youtu.be/lezZF12CC34
 
 ### Conteúdo do vídeo:
 - ✅ Apresentação do tema e recurso

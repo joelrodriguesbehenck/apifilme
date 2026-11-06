@@ -3,40 +3,39 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configuração do DbContext com SQLite
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=filmes.db";
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Data Source=filmes.db";
+
 builder.Services.AddDbContext<FilmeContext>(options =>
     options.UseSqlite(connectionString));
+
 var app = builder.Build();
-app.UseExceptionHandler(errorApp => 
+
+// Middleware de tratamento de exceções
+app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
-    
-{
-context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-context.Response.ContentType = "application/json";
-await context.Response.WriteAsJsonAsync(new
-{
-    mensagem = "ocorreu um erro de sistema tente novamente mais tarde"
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        await context.Response.WriteAsJsonAsync(new
+        {
+            mensagem = "Ocorreu um erro interno. Tente novamente mais tarde."
+        });
+    });
 });
-});
-});
 
-
-
-
-
-// Aplica as migrações automaticamente ao iniciar a aplicação
+// Aplicar migrações automaticamente
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<FilmeContext>();
-    db.Database.Migrate();
+    var contexto = scope.ServiceProvider.GetRequiredService<FilmeContext>();
+    contexto.Database.Migrate();
 }
 
-// Habilita arquivos estáticos da pasta wwwroot
+// Habilitar arquivos estáticos da pasta wwwroot
 app.UseDefaultFiles();
 app.UseStaticFiles();
-
-// Rotas da API - CRUD com EF Core e SQLite
 
 // 1. Listar todos os filmes (200 OK)
 app.MapGet("/api/filmes", async (FilmeContext db) =>
@@ -73,6 +72,7 @@ app.MapPost("/api/filmes", async (FilmeEntrada entrada, FilmeContext db) =>
 app.MapPut("/api/filmes/{id:int}", async (int id, FilmeEntrada entrada, FilmeContext db) =>
 {
     var filme = await db.Filmes.FindAsync(id);
+
     if (filme is null)
     {
         return Results.NotFound();
@@ -92,6 +92,7 @@ app.MapPut("/api/filmes/{id:int}", async (int id, FilmeEntrada entrada, FilmeCon
 app.MapDelete("/api/filmes/{id:int}", async (int id, FilmeContext db) =>
 {
     var filme = await db.Filmes.FindAsync(id);
+
     if (filme is null)
     {
         return Results.NotFound();
@@ -102,10 +103,7 @@ app.MapDelete("/api/filmes/{id:int}", async (int id, FilmeContext db) =>
 
     return Results.NoContent();
 });
-app.MapGet("/api/teste-erro",()=>
-{
-  
-});
+
 app.Run();
 
 // DTO para entrada de dados
