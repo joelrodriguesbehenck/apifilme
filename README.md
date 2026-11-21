@@ -31,7 +31,7 @@ Tecnologias utilizadas
 C# / .NET 10
 ## video de demonstração - AS
 Vídeo de demonstração da avaliação, apresentando a organização do projeto, a estrutura do banco de dados, a execução da API, os testes no Bruno e a persistência dos dados após reiniciar a aplicação.
-Link: (adicionar o link do novo vídeo)
+Link: (https://youtu.be/ffFCVtNc7Qk)
 
 
 # ap2 - crud persistente no frontend integrado
