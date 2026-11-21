@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-
+using Apifilme.Models;
+namespace Apifilme.Data;
 public class FilmeContext : DbContext
 {
     public FilmeContext(DbContextOptions<FilmeContext> options)

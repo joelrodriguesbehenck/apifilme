@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Apifilme.Data;
+using Apifilme. Models;
+using Apifilme.Dtos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +17,7 @@ var app = builder.Build();
 // Middleware de tratamento de exceções
 app.UseExceptionHandler(errorApp =>
 {
+    
     errorApp.Run(async context =>
     {
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
@@ -106,10 +110,3 @@ app.MapDelete("/api/filmes/{id:int}", async (int id, FilmeContext db) =>
 
 app.Run();
 
-// DTO para entrada de dados
-public record FilmeEntrada(
-    string Titulo,
-    string Genero,
-    int Ano,
-    double Nota
-);
